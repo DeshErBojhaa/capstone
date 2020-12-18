@@ -1,17 +1,10 @@
 pipeline {
   agent any
   stages {
-    stage('python Venv Env Setup') {
-      steps {
-        echo 'Setup Env Done'
-      }
-    }
-
     stage('lint code') {
       steps {
         sh 'echo "linting started"'
-        sh '''make setup
-              make install'''
+        sh 'make install'
         sh 'ls -la'
         sh 'make lint'
       }
