@@ -6,6 +6,7 @@ pipeline {
         sh 'echo "linting started"'
         sh 'make install'
         sh 'ls -la'
+        sh 'pwd'
         sh 'make lint'
       }
     }
