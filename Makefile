@@ -23,13 +23,13 @@ test:
 	#python -m pytest --nbval notebook.ipynb
 
 lint:
-	# See local hadolint install instructions:   https://github.com/hadolint/hadolint
-	# This is linter for Dockerfiles
+	#See local hadolint install instructions:   https://github.com/hadolint/hadolint
+	#This is linter for Dockerfiles
 	#docker run --rm -i hadolint/hadolint < Dockerfile
-	hadolint Dockerfile
-	# sudo /usr/local/bin/hadolint Dockerfile --ignore=DL3013
-	# This is a linter for Python source code linter: https://www.pylint.org/
-	# This should be run from inside a virtualenv
+	#hadolint Dockerfile
+	#sudo /usr/local/bin/hadolint Dockerfile --ignore=DL3013
+	#This is a linter for Python source code linter: https://www.pylint.org/
+	#This should be run from inside a virtualenv
 	pylint --disable=R,C,W1203 app.py
 
 all: install lint test
