@@ -17,14 +17,15 @@ pipeline {
         sh 'dockerImage = docker.build registry + ":latest"'
       }
     }
-
-    stage('push docker image') {
+    stage('Deploy our image') {
       steps {
-        sh '''docker.withRegistry( \'\', registryCredential ) {
-        dockerImage.push()
-}'''
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
         }
       }
+    }
 
       stage('clean unused image') {
         steps {
@@ -35,7 +36,7 @@ pipeline {
     }
     environment {
       registry = 'desherbojhaa/udacity-predict'
-      registryCredential = 'docker_credentials'
+      registryCredential = 'dockerhub_id'
       dockerImage = ''
     }
   }
