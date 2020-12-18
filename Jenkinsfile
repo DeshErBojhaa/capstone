@@ -3,8 +3,6 @@ pipeline {
   stages {
     stage('python Venv Env Setup') {
       steps {
-        sh '''make setup
-              make install'''
         echo 'Setup Env Done'
       }
     }
@@ -12,6 +10,9 @@ pipeline {
     stage('lint code') {
       steps {
         sh 'echo "linting started"'
+        sh '''make setup
+              make install'''
+        sh 'ls -la'
         sh 'make lint'
       }
     }
