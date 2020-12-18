@@ -12,9 +12,9 @@ setup:
 	. ./.venv/bin/activate
 
 install:
-	# This should be run from inside a virtualenv
-	pip3 install --upgrade pip &&\
-		pip3 install -r requirements.txt
+	# This should be run from inside a virtualenv.
+    sudo pip3 install --upgrade pip &&\
+		pip3 install -r requirements.txt --user
 	
 
 test:
