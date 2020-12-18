@@ -1,0 +1,4 @@
+.venv
+.vscode
+.corcleci
+output_txt_file
