@@ -1,16 +1,22 @@
 pipeline {
+  environment {
+    registry = 'desherbojhaa/udacity-predict'
+    registryCredential = 'dockerhub_id'
+    dockerImage = ''
+  }
   agent any
   stages {
+    stage('Install dependencies') {
+      steps {
+        sh 'make install'
+      }
+    }
     stage('lint code') {
       steps {
         sh 'echo "linting started"'
-        sh 'make install'
-        sh 'ls -la'
-        sh 'pwd'
         sh 'make lint'
       }
     }
-
     stage('Build Docker Image') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
@@ -31,16 +37,61 @@ pipeline {
       }
     }
 
-      stage('clean unused image') {
-        steps {
-          sh 'docker rmi $registry'
-        }
+    stage('clean unused image') {
+      steps {
+        sh 'docker rmi $registry'
       }
+    }
 
+    stage('Set Current kubectl Context') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+					    kubectl config use-context arn:aws:eks:us-west-2:639361319097:cluster/capstone
+					'''
+				}
+			}
+		}
+    stage('Deploy Blue Container') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/blue-controller.json
+					'''
+				}
+			}
+		}
+		stage('Deploy Green Container') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/green-controller.json
+					'''
+				}
+			}
+		}
+    stage('Create Service in the Cluster-Blue') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/blue-lb-service.json
+					'''
+				}
+			}
+		}
+		stage('Wait for User Permission') {
+      steps {
+        input "Do you want to redirect traffic to green?"
+      }
     }
-    environment {
-      registry = 'desherbojhaa/udacity-predict'
-      registryCredential = 'dockerhub_id'
-      dockerImage = ''
-    }
+    stage('Create Service in the Cluster-Green') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/green-lb-service.json
+					'''
+				}
+			}
+		} 
   }
+}
