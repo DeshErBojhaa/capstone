@@ -11,25 +11,29 @@ pipeline {
       }
     }
 
-    stage('build docker image') {
+    stage('Build Docker Image') {
       steps {
-        echo 'Building docker image'
-        sh 'dockerImage = docker.build registry + ":latest"'
+        withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
+          sh 'echo $DOC_USERNAME  $DOC_PASSWORD'
+          sh 'docker build -t desherbojhaa/udacity-predict .'
+        }
       }
     }
-    stage('Deploy our image') {
+    
+    stage('Upload Docker Image to Hub') {
       steps {
-        script {
-          docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
-          }
+        withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
+          sh '''
+            docker login -u $DOC_USERNAME -p $DOC_PASSWORD
+            docker push desherbojhaa/udacity-predict
+            '''
         }
       }
     }
 
       stage('clean unused image') {
         steps {
-          sh 'docker rmi $registry:$latest"'
+          sh 'docker rmi $registry'
         }
       }
 
