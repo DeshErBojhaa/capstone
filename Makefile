@@ -14,7 +14,7 @@ setup:
 install:
 	# This should be run from inside a virtualenv.
 	sudo pip3 install --upgrade pip &&\
-		pip3 install -r requirements.txt --user
+		pip3 install -r requirements.txt
 	
 
 test:
