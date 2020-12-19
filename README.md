@@ -1,24 +1,13 @@
-[![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=shield)](https://circleci.com/gh/circleci/circleci-docs)
-
-
-
-
 <h1>Summary</h1>
-The project utilizes a ML python app to predict housing prices in Boston to be run in a docker container orchastrated by Kubernetes.
-
+The project utilizes AWS kubernetese service to deploy a web site.
+[Website link](a1c583bb08b8b44a4ad83438fff3ccd9-1618222024.us-west-2.elb.amazonaws.com)
 <h1> Files: </h1>
 
-Dockerfile - Has the file required to dockerizing the python app
-.circleci/config.yml - has the file for CircleCI to automatically run tests and build the app. 
+Dockerfile - Has the file required to dockerizing the flask app
 requirements.txt - Has the required dependencies for the python app
-upload_docker.sh - Uploads the docker file to Docker Hub
-run_docker.sh - Will run the docker container
-run_kubernetes - Scheduled and Runs the app as a pod in kubernetes
-app.py - Is the file that is the python app
+create_eks_cluster.sh creates the EKS cluster. Cofigurations are read from eksctl-config.yml
+app.py - Is the file that is the Flask
 Makefile - Has set of commands to perform activities like install, lint, etc.,
-make_prediction.sh - Performs a call to the API to perform prediction
-model_data - folder has the required input file for the prediction model
-
 
 <h1> How to run </h1>
 
@@ -47,8 +36,5 @@ For Windows, I recommend using the Windows installer.
 2. Run Kubernetes
 <pre><code>./run_kubernetes.sh</pre></code>
 
-3. On a separate tab, call the script to make prediction.
-<pre><code>./make_prediction2.sh</pre></code>
-
-4. Once done,delete the minikube
+1. Once done,delete the minikube
 <pre><code>minikube delete</pre></code>
