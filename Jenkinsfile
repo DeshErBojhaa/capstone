@@ -44,6 +44,25 @@ pipeline {
         sh 'echo "Dummy Delete"'
       }
     }
+    stage('Added New kubectl Context') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+					    aws eks --region us-west-2 update-kubeconfig --name capstone
+					'''
+				}
+			}
+		}
+    
+    stage('Set Current kubectl Context') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+					    kubectl config use-context arn:aws:eks:us-west-2:639361319097:cluster/capstone
+					'''
+				}
+			}
+		}
 
     stage('Deploy Blue Container') {
 			steps {
