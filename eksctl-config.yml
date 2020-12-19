@@ -1,0 +1,16 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+    name: capstone
+    region: us-west-2
+    version: '1.18'
+iam:
+    withOIDC: true
+managedNodeGroups:
+    - name: ng-t2micro
+      instanceType: t2.micro
+      desiredCapacity: 2
+      minSize: 1
+      maxSize: 3

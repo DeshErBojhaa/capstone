@@ -1,47 +1,107 @@
 pipeline {
+  environment {
+    registry = 'desherbojhaa/udacity-predict'
+    registryCredential = 'dockerhub_id'
+    dockerImage = ''
+  }
   agent any
   stages {
-    stage('python Venv Env Setup') {
+    stage('Install dependencies') {
       steps {
-        echo 'Setup Env Done'
+        sh 'make install'
       }
     }
-
     stage('lint code') {
       steps {
         sh 'echo "linting started"'
-        sh '''make setup
-              make install'''
-        sh 'ls -la'
         sh 'make lint'
       }
     }
-
-    stage('build docker image') {
+    stage('Build Docker Image') {
       steps {
-        echo 'Building docker image'
-        sh 'dockerImage = docker.build registry + ":latest"'
-      }
-    }
-
-    stage('push docker image') {
-      steps {
-        sh '''docker.withRegistry( \'\', registryCredential ) {
-        dockerImage.push()
-}'''
+        withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
+          sh 'docker build -t desherbojhaa/udacity-predict .'
         }
       }
-
-      stage('clean unused image') {
-        steps {
-          sh 'docker rmi $registry:$latest"'
+    }
+    
+    stage('Upload Docker Image to Hub') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
+          sh '''
+            docker login -u $DOC_USERNAME -p $DOC_PASSWORD
+            docker push desherbojhaa/udacity-predict
+            '''
         }
       }
+    }
 
+    stage('clean unused image') {
+      steps {
+        sh 'docker rmi $registry'
+      }
     }
-    environment {
-      registry = 'desherbojhaa/udacity-predict'
-      registryCredential = 'docker_credentials'
-      dockerImage = ''
+    stage('Added New kubectl Context') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+					    aws eks --region us-west-2 update-kubeconfig --name capstone
+					'''
+				}
+			}
+		}
+    
+    stage('Set Current kubectl Context') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+					    kubectl config use-context arn:aws:eks:us-west-2:639361319097:cluster/capstone
+					'''
+				}
+			}
+		}
+
+    stage('Deploy Blue Container') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+            whoami
+						kubectl apply -f ./deploy/blue-controller.yml -v=8
+					'''
+				}
+			}
+		}
+		stage('Deploy Green Container') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/green-controller.yml -v=8
+					'''
+				}
+			}
+		}
+    stage('Create Service in the Cluster-Blue') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/blue-lb-service.yml
+					'''
+				}
+			}
+		}
+		stage('Wait for User Permission') {
+      steps {
+        input "Do you want to redirect traffic to green?"
+      }
     }
+    stage('Create Service in the Cluster-Green') {
+			steps {
+				withAWS(region:'us-west-2', credentials:'aws_id') {
+					sh '''
+						kubectl apply -f ./deploy/green-lb-service.yml
+					'''
+				}
+			}
+		}
   }
+}

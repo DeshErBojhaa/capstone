@@ -2,15 +2,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: capstone
+    name: green
     labels:
-        app: capstone
+        app: green
     namespace: default
 spec:
     replicas: 2
     selector:
         matchLabels:
-            app: capstone
+            app: green
     strategy:
         rollingUpdate:
             maxSurge: 25%
@@ -19,12 +19,12 @@ spec:
     template:
         metadata:
             labels:
-                app: capstone
+                app: green
         spec:
             containers:
                 - image: desherbojhaa/udacity-predict
                   imagePullPolicy: Always
-                  name: capstone
+                  name: green
                   ports:
                       - containerPort: 80
                         protocol: TCP
@@ -35,17 +35,3 @@ spec:
                       requests:
                           cpu: "0.2"
                           memory: "150"
-
----
-apiVersion: v1
-kind: Service
-metadata:
-    name: capstone-service
-spec:
-    selector:
-        app: capstone
-    type: LoadBalancer
-    ports:
-        - protocol: TCP
-          targetPort: 80
-          port: 80
