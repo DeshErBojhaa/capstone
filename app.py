@@ -5,6 +5,7 @@ app = Flask(__name__)
 @app.route("/")
 def home():
     html = "<h3>Sklearn Prediction Home</h3>"
+    akakakka
     return html.format(format)
 
 if __name__ == "__main__":
