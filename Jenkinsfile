@@ -20,8 +20,7 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
-          sh 'echo "Dummy Build"'
-          // sh 'docker build -t desherbojhaa/udacity-predict .'
+          sh 'docker build -t desherbojhaa/udacity-predict .'
         }
       }
     }
@@ -29,19 +28,17 @@ pipeline {
     stage('Upload Docker Image to Hub') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub_id', usernameVariable: 'DOC_USERNAME', passwordVariable: 'DOC_PASSWORD')]) {
-          // sh '''
-          //   docker login -u $DOC_USERNAME -p $DOC_PASSWORD
-          //   docker push desherbojhaa/udacity-predict
-          //   '''
-          sh 'echo "Dummy push"'
+          sh '''
+            docker login -u $DOC_USERNAME -p $DOC_PASSWORD
+            docker push desherbojhaa/udacity-predict
+            '''
         }
       }
     }
 
     stage('clean unused image') {
       steps {
-        // sh 'docker rmi $registry'
-        sh 'echo "Dummy Delete"'
+        sh 'docker rmi $registry'
       }
     }
     stage('Added New kubectl Context') {
@@ -69,7 +66,6 @@ pipeline {
 				withAWS(region:'us-west-2', credentials:'aws_id') {
 					sh '''
             whoami
-            ls -la ./
 						kubectl apply -f ./deploy/blue-controller.yml -v=8
 					'''
 				}
